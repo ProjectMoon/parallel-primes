@@ -12,8 +12,6 @@ long pp_chunkify(long num, long nodes, long *step, long **chunks) {
     chunkSize = 1;
   }
 
-  //iterations is the size of each chunk
-
   //only bother to parallelize when number is bigger than
   //the amount of nodes we have.
   if (num > nodes) {

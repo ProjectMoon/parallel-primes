@@ -4,6 +4,14 @@
 #include <stdbool.h>
 
 /*
+ * pprimes.h - parallel primes header.
+ *
+ * pprimes.h contains the function prototypes for testing of prime numbers
+ * and determining how to divide the prime data among the nodes of the
+ * cluster.
+ */
+
+/*
  * chunkify - divide up the iterations for the number to be investigated.
  * The division is created based on the number of nodes available (nodes param).
  * chunks is an array of integers, with each value being the start of a new
