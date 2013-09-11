@@ -41,7 +41,8 @@ void ppmw_master(long start, int rank, int size) {
 	  package[0] = chunks[node];
 	  package[1] = step;
 	  package[2] = num;
-	  rc = MPI_Send(package, 3, MPI_LONG, node, PRIME_CALC, MPI_COMM_WORLD);
+	  //rc = MPI_Send(package, 3, MPI_LONG, node, PRIME_CALC, MPI_COMM_WORLD);
+	  rc = MPI_Bcast(package, 3, MPI_LONG, 0, MPI_COMM_WORLD);
 	}
 
 	//wait for workers to finish
@@ -52,9 +53,10 @@ void ppmw_master(long start, int rank, int size) {
 	//is not prime.
 	for (int src = 1; src < size; src++) {
 	  int nodePrime, rc;
-	  MPI_Status stat;
-	  rc = MPI_Recv(&nodePrime, 1, MPI_INT, src, PRIME_CALC, MPI_COMM_WORLD, &stat);
-
+	  //MPI_Status stat;
+	  //rc = MPI_Recv(&nodePrime, 1, MPI_INT, src, PRIME_CALC, MPI_COMM_WORLD, &stat);
+	  rc = MPI_Bcast(&nodePrime, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	  
 	  //only care if master didn't de-prime already.
 	  if (prime == true && nodePrime != 1) {
 	    prime = false;
@@ -86,13 +88,14 @@ void ppmw_worker(int rank, int size) {
   const int MASTER = 0;
   
   while (true) { //change to check for shutdown message later.
-    MPI_Status stat;
+    //MPI_Status stat;
     int rc;
     long start, step, num;
     long package[3];
 
     //receive incoming package
-    rc = MPI_Recv(package, 3, MPI_LONG, MASTER, PRIME_CALC, MPI_COMM_WORLD, &stat);
+    //rc = MPI_Recv(package, 3, MPI_LONG, MASTER, PRIME_CALC, MPI_COMM_WORLD, &stat);
+    rc = MPI_Bcast(package, 3, MPI_LONG, MASTER, MPI_COMM_WORLD);
     start = package[0];
     step = package[1];
     num = package[2];

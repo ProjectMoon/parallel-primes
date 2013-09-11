@@ -32,6 +32,10 @@ long pp_chunkify(long num, long nodes, long *step, long **chunks) {
 }
 
 bool pp_prelim_check(long num) {
+  if (num < 2) {
+    return false;
+  }
+  
   if (num > 2 && num % 2 == 0) {
     return false;
   }
