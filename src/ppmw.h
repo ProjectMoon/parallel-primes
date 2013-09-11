@@ -26,4 +26,5 @@ void ppmw_master(long start, int rank, int size);
  */
 void ppmw_worker(int rank, int size);
 
+void ppmw_create_pkg(int nodes, int node, long step, long num, long** chunks_ptr, long** pkgs_ptr);
 #endif

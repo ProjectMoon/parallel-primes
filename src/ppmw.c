@@ -34,33 +34,41 @@ void ppmw_master(long start, int rank, int size) {
       if (prime) {
 	//yes, we must check the rest.
 	//here, len should == # of nodes.
-	for (int node = 1; node < size; node++) {
-	  int rc;
-	  //0 = chunk start, 1 = step (iterate over that many numbers), 2 = num
-	  long package[3];
-	  package[0] = chunks[node];
-	  package[1] = step;
-	  package[2] = num;
-	  //rc = MPI_Send(package, 3, MPI_LONG, node, PRIME_CALC, MPI_COMM_WORLD);
-	  rc = MPI_Bcast(package, 3, MPI_LONG, 0, MPI_COMM_WORLD);
+	//int rc;
+	//0 = chunk start, 1 = step (iterate over that many numbers), 2 = num
+	long* pkgs;
+	long received[3];
+	int* results = malloc(size * sizeof(int));
+	ppmw_create_pkg(size, rank, step, num, &chunks, &pkgs);
+	//rc = MPI_Send(package, 3, MPI_LONG, node, PRIME_CALC, MPI_COMM_WORLD); 
+	MPI_Scatter(pkgs, 3, MPI_LONG, received, 3, MPI_LONG, 0, MPI_COMM_WORLD);
+
+	//package structure: 0 = num start, 1 = nums to iterate, 2 = num to check for prime	
+	bool prime = pp_isprime(received[2], received[0], received[0] + received[1]);
+	int is_prime = (int)prime;
+	MPI_Gather(&is_prime, 1, MPI_INT, results, size, MPI_INT, 0, MPI_COMM_WORLD);
+
+	//is it a prime?
+	for (int c = 0; c < size; c++) {
+	  if (prime == true && results[c] == 0) {
+	    prime = false;
+	    break;
+	  }
 	}
 
-	//wait for workers to finish
-	//this causes apparently random segfaults!!
-	//MPI_Barrier(MPI_COMM_WORLD);
+	if (prime) {
+	  printf("%ld\n", num);
+	}
 
-	//receive back all results. one false is enough to say num
-	//is not prime.
-	for (int src = 1; src < size; src++) {
-	  int nodePrime, rc;
-	  //MPI_Status stat;
-	  //rc = MPI_Recv(&nodePrime, 1, MPI_INT, src, PRIME_CALC, MPI_COMM_WORLD, &stat);
-	  rc = MPI_Bcast(&nodePrime, 1, MPI_INT, 0, MPI_COMM_WORLD);
-	  
-	  //only care if master didn't de-prime already.
-	  if (prime == true && nodePrime != 1) {
-	    prime = false;
-	  }
+	//free
+	if (results) {
+	  free(results);
+	  results = NULL;
+	}
+
+	if (pkgs) {
+	  free(pkgs);
+	  pkgs = NULL;
 	}
       }
 
@@ -83,32 +91,19 @@ void ppmw_master(long start, int rank, int size) {
   }
 }
 
-void ppmw_worker(int rank, int size) {
-  //the master node is always 0.
-  const int MASTER = 0;
-  
-  while (true) { //change to check for shutdown message later.
-    //MPI_Status stat;
-    int rc;
-    long start, step, num;
-    long package[3];
+void ppmw_create_pkg(int nodes, int node, long step, long num, long** chunks_ptr, long** pkgs_ptr) {
+  long* chunks = *chunks_ptr;
+  long* pkgs = *pkgs_ptr;
 
-    //receive incoming package
-    //rc = MPI_Recv(package, 3, MPI_LONG, MASTER, PRIME_CALC, MPI_COMM_WORLD, &stat);
-    rc = MPI_Bcast(package, 3, MPI_LONG, MASTER, MPI_COMM_WORLD);
-    start = package[0];
-    step = package[1];
-    num = package[2];
-    
-    bool prime = pp_isprime(num, start, start + step);
+  pkgs = malloc(3 * nodes  * sizeof(long));
 
-    //wait for others to finish.
-    //this causes apparently random segfaults!
-    //MPI_Barrier(MPI_COMM_WORLD);
-
-    //for some reason MPI does not like sending bool directly.
-    //it appears to get translated as 0 when master takes it back.
-    int i = (int)prime;
-    MPI_Send(&i, 1, MPI_INT, MASTER, PRIME_CALC, MPI_COMM_WORLD);
+  for (int c = 0; c < (3 * nodes) - 3; c++) {
+    pkgs[c] = chunks[node]; //start num
+    pkgs[c + 1] = step; //how many to iterate over
+    pkgs[c + 3] = num; //num checking for primality
   }
+}
+
+void ppmw_worker(int rank, int size) {
+ 
 }
