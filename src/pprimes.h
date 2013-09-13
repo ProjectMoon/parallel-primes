@@ -38,8 +38,8 @@ long pp_chunkify(long num, long nodes, long *step, long **chunks);
  * a parallel process. The array is meant for use with the Scatter
  * function.
  */
-void pp_create_pkgs(int nodes, int node, long step,
-		     long num, long** chunks_ptr, long** pkgs_ptr);
+void pp_create_pkgs(int nodes, long step, long num,
+		    long** chunks_ptr, long** pkgs_ptr);
 
 /*
  * free - free up a 1D dynamic array, e.g. chunks or pkgs array.

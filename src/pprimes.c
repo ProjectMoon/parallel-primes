@@ -31,17 +31,18 @@ long pp_chunkify(long num, long nodes, long *step, long **chunks) {
   }
 }
 
-void pp_create_pkgs(int nodes, int node, long step,
-		     long num, long** chunks_ptr, long** pkgs_ptr) {
+void pp_create_pkgs(int nodes, long step, long num,
+		    long** chunks_ptr, long** pkgs_ptr) {
   long* chunks = *chunks_ptr;
-  long* pkgs = *pkgs_ptr;
+  int node = 0;
+  
+  *pkgs_ptr = malloc(3 * nodes  * sizeof(long));
 
-  pkgs = malloc(3 * nodes  * sizeof(long));
-
-  for (int c = 0; c < (3 * nodes) - 3; c++) {
-    pkgs[c] = chunks[node]; //start num
-    pkgs[c + 1] = step; //how many to iterate over
-    pkgs[c + 3] = num; //num checking for primality
+  for (int c = 0; c < 3 * nodes; c += 3) {
+    (*pkgs_ptr)[c] = chunks[node]; //start num
+    (*pkgs_ptr)[c + 1] = step; //how many to iterate over
+    (*pkgs_ptr)[c + 2] = num; //num checking for primality
+    node++;
   }
 }
 
