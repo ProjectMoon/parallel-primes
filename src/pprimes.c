@@ -31,6 +31,20 @@ long pp_chunkify(long num, long nodes, long *step, long **chunks) {
   }
 }
 
+void pp_create_pkgs(int nodes, int node, long step,
+		     long num, long** chunks_ptr, long** pkgs_ptr) {
+  long* chunks = *chunks_ptr;
+  long* pkgs = *pkgs_ptr;
+
+  pkgs = malloc(3 * nodes  * sizeof(long));
+
+  for (int c = 0; c < (3 * nodes) - 3; c++) {
+    pkgs[c] = chunks[node]; //start num
+    pkgs[c + 1] = step; //how many to iterate over
+    pkgs[c + 3] = num; //num checking for primality
+  }
+}
+
 bool pp_prelim_check(long num) {
   if (num < 2) {
     return false;
@@ -63,10 +77,17 @@ bool pp_isprime(long num, long chunkStart, long chunkEnd) {
   return true;
 }
 
-void pp_free_chunks(long **chunks) {
-  if (chunks) {
-    free(*chunks);
-    *chunks = NULL;
+void pp_free_long(long** arr_ptr) {
+  if (arr_ptr) {
+    free(*arr_ptr);
+    *arr_ptr = NULL;
+  }
+}
+
+void pp_free_int(int** arr_ptr) {
+  if (arr_ptr) {
+    free(*arr_ptr);
+    *arr_ptr = NULL;
   }
 }
 

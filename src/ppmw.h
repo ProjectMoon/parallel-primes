@@ -9,22 +9,11 @@
  */
 
 /*
- * ppmw_master - master process function
+ * ppmw_proc - master/worker functin
  *
- * The master takes care of delegating out chunks to check, as well as checking
- * one chunk itself. It receives answers back from the workers and decides
- * whether or not the current number is a prime.
+ * The master/worker process is effectively the "main" of the program that takes
+ * of distributing the chunks out and checking them for primality.
  */
-void ppmw_master(long start, int rank, int size);
+void ppmw_proc(long start, int rank, int size);
 
-/*
- * ppmw_worker - worker process function
- *
- * The workers wait for a message from the master telling them to check a
- * set of numbers for primality. They then return the result (true/false)
- * back to the master.
- */
-void ppmw_worker(int rank, int size);
-
-void ppmw_create_pkg(int nodes, int node, long step, long num, long** chunks_ptr, long** pkgs_ptr);
 #endif

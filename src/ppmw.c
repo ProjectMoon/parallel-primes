@@ -9,13 +9,13 @@
 //Message channels (aka MPI tags)
 const int PRIME_CALC = 1; //communicate info about primes.
 
-void ppmw_master(long start, int rank, int size) {
+void ppmw_proc(long start, int rank, int size) {
   //master: handles communication between workers and prime detection.
   //printf("Starting at %ld\n", start);
 
   //discover primes up to the specified number.
   for (long num = start;; num++) {
-    //printf("Current number: %ld\n", num);
+    printf("Current number: %ld\n", num);
 
     //basic preliminary checks to determine if we can simply skip this num.
     if (!pp_prelim_check(num)) {
@@ -39,7 +39,7 @@ void ppmw_master(long start, int rank, int size) {
 	long* pkgs;
 	long received[3];
 	int* results = malloc(size * sizeof(int));
-	ppmw_create_pkg(size, rank, step, num, &chunks, &pkgs);
+	pp_create_pkgs(size, rank, step, num, &chunks, &pkgs);
 	//rc = MPI_Send(package, 3, MPI_LONG, node, PRIME_CALC, MPI_COMM_WORLD); 
 	MPI_Scatter(pkgs, 3, MPI_LONG, received, 3, MPI_LONG, 0, MPI_COMM_WORLD);
 
@@ -61,15 +61,8 @@ void ppmw_master(long start, int rank, int size) {
 	}
 
 	//free
-	if (results) {
-	  free(results);
-	  results = NULL;
-	}
-
-	if (pkgs) {
-	  free(pkgs);
-	  pkgs = NULL;
-	}
+	pp_free_int(&results);
+	pp_free_long(&pkgs);
       }
 
       //finally, is it a prime?
@@ -87,23 +80,6 @@ void ppmw_master(long start, int rank, int size) {
     }
 
     //clean up for the next iteration
-    pp_free_chunks(&chunks);
+    pp_free_long(&chunks);
   }
-}
-
-void ppmw_create_pkg(int nodes, int node, long step, long num, long** chunks_ptr, long** pkgs_ptr) {
-  long* chunks = *chunks_ptr;
-  long* pkgs = *pkgs_ptr;
-
-  pkgs = malloc(3 * nodes  * sizeof(long));
-
-  for (int c = 0; c < (3 * nodes) - 3; c++) {
-    pkgs[c] = chunks[node]; //start num
-    pkgs[c + 1] = step; //how many to iterate over
-    pkgs[c + 3] = num; //num checking for primality
-  }
-}
-
-void ppmw_worker(int rank, int size) {
- 
 }

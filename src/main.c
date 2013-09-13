@@ -17,10 +17,7 @@ int main(int argc, char **argv) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   if (rank == 0) {
-    ppmw_master(start, rank, size);
-  }
-  else {
-    ppmw_worker(rank, size);
+    ppmw_proc(start, rank, size);
   }
 
   MPI_Finalize();
