@@ -26,10 +26,27 @@
 long pp_chunkify(long num, long nodes, long *step, long **chunks);
 
 /*
- * free_chunks - free up the chunk array created by chunkify. chunks must be
- * passed in by address.
+ * create_pkgs - Create packages for delivery
+ *
+ * This function creates "packages" (or payloads) to deliver from master
+ * to the workers. The package is an 1D array of three numbers:
+ * - start number
+ * - numbers to iterate over
+ * - number to check for primality.
+ *
+ * Every 3 numbers represent one package that will get delivered to
+ * a parallel process. The array is meant for use with the Scatter
+ * function.
  */
-void pp_free_chunks(long **chunks);
+void pp_create_pkgs(int nodes, long step, long num,
+		    long** chunks_ptr, long** pkgs_ptr);
+
+/*
+ * free - free up a 1D dynamic array, e.g. chunks or pkgs array.
+ * Array must be passed in by address.
+ */
+void pp_free_long(long** arr_ptr);
+void pp_free_int(int** arr_ptr);
 
 /*
  * prelim_check - perform some very basic, very fast checks to determine if the
@@ -48,7 +65,9 @@ bool pp_prelim_check(long num);
 bool pp_isprime(long num, long chunkStart, long chunkEnd);
 
 /*
- * debug - block the process for debugging purposes.
+ * debug - block the process for debugging purposes. Puts the process into
+ * infinite sleep. Attach using GDB and then break out of the loop by
+ * changing the variable i to something non-zero. Step up from there.
  */
 void pp_debug(void);
 #endif
