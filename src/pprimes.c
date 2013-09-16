@@ -36,7 +36,7 @@ void pp_create_pkgs(int nodes, long step, long num,
   long* chunks = *chunks_ptr;
   int node = 0;
   
-  *pkgs_ptr = malloc(3 * nodes  * sizeof(long));
+  *pkgs_ptr = malloc(3 * nodes * sizeof(long));
 
   for (int c = 0; c < 3 * nodes; c += 3) {
     (*pkgs_ptr)[c] = chunks[node]; //start num
