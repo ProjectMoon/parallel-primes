@@ -14,6 +14,6 @@
  * The master/worker process is effectively the "main" of the program that takes
  * of distributing the chunks out and checking them for primality.
  */
-void ppmw_proc(long start, int rank, int size);
+void ppmw_proc(long start, long end, int rank, int size);
 
 #endif
