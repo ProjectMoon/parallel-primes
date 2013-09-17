@@ -10,7 +10,7 @@
 
 void ppmw_proc(long start, long end, int rank, int size) {
 	//discover primes up to the specified number.
-	for (long num = start; start <= end; num++) {
+	for (long num = start; num <= end; num++) {
 		//basic preliminary checks to determine if we can simply skip this num.
 		if (!pp_prelim_check(num)) {
 			MPI_Barrier(MPI_COMM_WORLD);
