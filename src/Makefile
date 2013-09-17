@@ -1,5 +1,5 @@
 # generated binary name
-BINARY=parallel-prime
+BINARY=parallel-primes
 
 # compiler info: which compiler to use and flags
 CC=mpicc
