@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <math.h>
 #include "pprimes.h"
 #include "ppmw.h"
 
@@ -11,6 +12,7 @@
 void ppmw_proc(long start, long end, int rank, int size) {
 	//discover primes up to the specified number.
 	for (long num = start; num <= end; num++) {
+		long numToCheck = (long)sqrt(num);
 		//basic preliminary checks to determine if we can simply skip this num.
 		if (!pp_prelim_check(num)) {
 			MPI_Barrier(MPI_COMM_WORLD);
@@ -26,8 +28,8 @@ void ppmw_proc(long start, long end, int rank, int size) {
 		//package structure:
 		//0 = chunk start, 1 = step (iterate over that many numbers), 2 = num
 		if (rank == 0) {
-			pp_chunkify(num, size, &step, &chunks);
-			pp_create_pkgs(size, step, num, &chunks, &pkgs);
+			pp_chunkify(numToCheck, size, &step, &chunks);
+			pp_create_pkgs(size, step, numToCheck, &chunks, &pkgs);
 		}
 
 		///scatter the chunks to everyone to check subsets.
